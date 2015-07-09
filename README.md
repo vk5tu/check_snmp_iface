@@ -169,6 +169,8 @@ Net-SMNP. Alter /etc/snmp/snmpd.conf
     agentAddress udp:161,udp6:161
     rocommunity PwQo3s49lGpX5qF3 192.0.2.0/24
     rocommunity6 PwQo3s49lGpX5qF3 2001:db8::/32
+    sysLocation Behind the woodshed, Cold Comfort Farm
+    sysContact Aunt Ada <ada.doom@example.org>
 
 
 Nagios
