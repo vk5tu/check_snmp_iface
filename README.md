@@ -134,19 +134,23 @@ use SNMPv2c and BULKGET, and so is efficient.
     fedora-22$ sudo dnf install pysnmp python-pyasn1
 
 
-Router configuration -- Cisco
------------------------------
+Target configuration
+--------------------
+
+Cisco IOS. Configure:
 
     access-list 99 remark Allow SNMP access from these addresses
     access-list 99 permit 192.0.2.0 0.0.0.255
 
-    snmp-server community PwQo3s49lGpX5qF3 RO 99
+    ipv6 access-list SNMP-LIST6
+     remark Allow SNMP access from these addresses
+     permit 2001:db8::/32
+
+    snmp-server community PwQo3s49lGpX5qF3 RO ipv6 SNMP-LIST6 99
     snmp-server contact Aunt Ada <ada.doom@example.org>
     snmp-server location Behind the woodshed, Cold Comfort Farm
 
-
-Router configuration -- Juniper
--------------------------------
+Juniper JUNOS. Configure:
 
     snmp {
         contact "Aunt Ada <ada.doom@example.org>";
@@ -155,10 +159,17 @@ Router configuration -- Juniper
             authorization read-only;
             clients {
                 192.0.2.0/24;
+                2001:db8::/32;
             }
         }
     }
-        
+
+Net-SMNP. Alter /etc/snmp/snmpd.conf
+
+    agentAddress udp:161,udp6:161
+    rocommunity PwQo3s49lGpX5qF3 192.0.2.0/24
+    rocommunity6 PwQo3s49lGpX5qF3 2001:db8::/32
+
 
 Nagios
 ------
