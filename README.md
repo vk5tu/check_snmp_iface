@@ -173,8 +173,8 @@ Net-SMNP. Alter /etc/snmp/snmpd.conf
     sysContact Aunt Ada <ada.doom@example.org>
 
 
-Nagios
-------
+Nagios events
+-------------
 
 This is a Nagios plugin, following the [specification](http://nagios.sourceforge.net/docs/3_0/pluginapi.html).
 
@@ -209,6 +209,77 @@ WARNING events
 UNKNOWN events
 
 * A failure to retrieve ifIndex after successfully GETing sysUpTime.
+
+
+Nagios class
+------------
+
+Example:
+
+    import nagios
+
+    n = nagios.Nagios()
+    n.ok('all is well', longtext=['it really is', 'honestly'])
+
+Note well that the class exits Python.
+
+The API takes care of Nagios' bizarre plugin output format.
+
+The API also takes a list of strings for PerfData but I didn't think
+out well this aspect of the API. The basic issue is that the caller
+doesn't know how long the status string is, and therefore how much of
+the first line -- 80 characters shared between the short status and
+the intial perfdata -- remains for the PerfData-formatted variables.
+
+I should have designed the API to take a list of PerfData items. Then
+the Nagios.ok() call could have put in as many PerfData items on the
+first line as would fit well.
+
+Of course the PerfData item should be constructed using a class. With
+each item internally represented as a list of [ _label-str_, _value_,
+_units_, _warn-range_, _critical-range_, _minimum-value_,
+_maximum-value_ ]. The range itself can be [ _not-bool_, _low-value_,
+_high-value_ ]. This seems straightforward, but the Nagios textual
+format manages to make it confusing by allowing abbreviations to save
+space.  See the
+[specification](https://www.monitoring-plugins.org/doc/guidelines.html#AEN200).
+
+
+Notes on Nagios statuses
+------------------------
+
+The short status is all that appears on some displays. That means it
+must give:
+
+* the fault
+
+* the numeric value which caused the fault to be discovered.
+
+In the long status we should give:
+
+* the traffic. Maybe something like:
+
+    10Gbps: in 1.553(16%), out 5.234(52%).
+
+* the interface's full name and its description (as configured on the
+  router):
+
+    GigabitEthernet0: med-atlantis-ro1 ge-0/0/0 (Posideon cables 666000666)
+    
+* non-zero errors
+
+    Also: CRC: 34433/5m(0.1%)
+    Also: recent flap: 3m6.23s
+
+* affected sub-interfaces and VLANs, with their descriptions too.
+
+    Contains: Gi0.2: Atlantis College
+    Contains: Gi0.3: Allantis School of the Sea
+
+* proportion of multicast + broadcast traffic
+
+    Multicast: 10Gbps: in 0.433(4%), out 0.232(2%)
+    Multicast: proportion of traffic: in 30%, out 2%
 
 
 Redis schema -- ifTable:_HOSTNAME_:_INTERFACE_:_SYSUPTIME_
